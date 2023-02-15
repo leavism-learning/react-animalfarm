@@ -1,35 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { search, animals } = useAnimalSearch();
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <main>
+      <h1>Animal Farm</h1>
+
+      <input
+        type='text'
+        placeholder='Search'
+        onChange={(e) => search(e.target.value)}
+      />
+
+      <ul>
+        {animals.map((animal) => (
+          <Animal key={animal.id} {...animal} />
+        ))}
+
+        {animals.length === 0 && 'No animals found'}
+      </ul>
+    </main>
+  );
 }
 
-export default App
+// Dumb UI component
+function Animal({ type, name, age }) {
+  return (
+    <li>
+      <strong>{type}</strong> {name} ({age} years old)
+    </li>
+  );
+}
+
+// Custom Hook
+function useAnimalSearch() {
+  const [animals, setAnimals] = useState([]);
+
+  useEffect(() => {
+    const lastQuery = localStorage.getItem('lastQuery');
+    search(lastQuery);
+  }, []);
+
+  const search = async (q) => {
+    const response = await fetch(
+      'http://localhost:8080?' + new URLSearchParams({ q })
+    );
+    const data = await response.json();
+    setAnimals(data);
+
+    localStorage.setItem('lastQuery', q);
+  };
+
+  return { search, animals };
+}
+
+export default App;
