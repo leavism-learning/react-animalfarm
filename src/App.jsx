@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import './App.css';
 
 function App() {
   const { search, animals } = useAnimalSearch();
@@ -25,7 +26,8 @@ function App() {
 }
 
 // Dumb UI component
-function Animal({ type, name, age }) {
+function Animal(props) {
+  const { type, name, age } = props;
   return (
     <li>
       <strong>{type}</strong> {name} ({age} years old)
